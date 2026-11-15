@@ -20,6 +20,7 @@ from opendbc.car.car_helpers import get_car, interfaces
 from opendbc.car.interfaces import CarInterfaceBase, RadarInterfaceBase
 from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
+from openpilot.selfdrive.car.bluepilot import BluePilotHost, SERVICES as BP_SERVICES
 
 REPLAY = "REPLAY" in os.environ
 
@@ -65,7 +66,8 @@ class Car:
 
   def __init__(self, CI=None, RI=None) -> None:
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'] + BP_SERVICES,
+                                  ignore_alive=BP_SERVICES, ignore_valid=BP_SERVICES, ignore_avg_freq=BP_SERVICES)
     self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'radarTracks'])
 
     self.can_rcv_cum_timeout_counter = 0
@@ -137,6 +139,9 @@ class Car:
             self.CI.CC.secoc_key = saved_secoc_key
         else:
           cloudlog.warning("Saved SecOC key is invalid")
+
+    # BluePilot: startup safety bits into the Ford safetyParam, before CarParams goes to pandad
+    self.bp = BluePilotHost(self.CI) if not self.CP.passive else None
 
     # Write previous route's CarParams
     prev_cp = self.params.get("CarParamsPersistent")
@@ -235,6 +240,8 @@ class Car:
     if self.sm.all_alive(['carControl']):
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
+      if self.bp is not None:
+        self.bp.update(self.sm)  # BluePilot: this frame's model / vehicle-parameter inputs
       self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 

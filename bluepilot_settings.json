@@ -1,0 +1,26 @@
+{
+  "_readme": "BluePilot Ford steering settings. Edit on GitHub, then reinstall or reboot the device. Keys and ranges: opendbc_repo/opendbc/bluepilot_lateral/params/manifest.py",
+
+  "disable_BP_lat_UI": false,
+  "FordPrefLateralControl": 1,
+
+  "FordLowSpeedFactor_ang": 1.0,
+  "FordHighSpeedFactor_ang": 1.0,
+  "FordHighSpeedDampening_ang": 1.0,
+  "lane_change_factor_high_ang": 1.0,
+  "enable_lane_positioning_ang": false,
+  "custom_path_offset_ang": 0.0,
+  "lane_centering_strength_ang": 0.25,
+
+  "enable_human_turn_detection_curv": true,
+  "enable_lane_positioning_curv": false,
+  "enable_lane_full_mode_curv": false,
+  "custom_profile_curv": 0,
+  "lane_change_factor_high_curv": 0.85,
+  "pc_blend_ratio_high_C_UI_curv": 0.4,
+  "pc_blend_ratio_low_C_UI_curv": 0.4,
+  "custom_path_offset_curv": 0.0,
+  "LC_PID_gain_UI_curv": 1.0,
+
+  "FordPrefSteerAngleCurvature": false
+}
