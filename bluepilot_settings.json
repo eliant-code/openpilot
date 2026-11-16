@@ -1,8 +1,5 @@
 {
-  "_readme": "BluePilot Ford steering settings. Edit on GitHub, then reinstall or reboot the device. Keys and ranges: opendbc_repo/opendbc/bluepilot_lateral/params/manifest.py",
-
-  "disable_BP_lat_UI": false,
-  "FordPrefLateralControl": 1,
+  "_readme": "BluePilot Ford steering tuning. Edit on GitHub, then reinstall or reboot the device. Keys and ranges: opendbc_repo/opendbc/bluepilot_lateral/params/manifest.py. The steering mode (angle / curvature / comma stock) is set on the device: Settings > Driving > ford steering.",
 
   "FordLowSpeedFactor_ang": 1.0,
   "FordHighSpeedFactor_ang": 1.0,

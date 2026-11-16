@@ -24,6 +24,13 @@ class DrivingLayoutMici(NavScroller):
     ldw_toggle = BigParamControl("lane departure warnings", "IsLdwEnabled",
                                  description="Warn when you drift across a detected lane line.\n" +
                                              "Only above 31 mph (50 km/h), with no turn signal.")
+    # FordSteeringMode param index = option order (selfdrive/car/bluepilot.py STEERING_MODES). Read at car start.
+    ford_steering = BigMultiParamToggle("ford steering", "FordSteeringMode", ["angle", "curvature (ford)", "curvature (default)"],
+                                        description="Angle and curvature (ford) use BluePilot's Ford steering.\n" +
+                                                    "Curvature (default) is comma's stock Ford steering.\n" +
+                                                    "Change with the car off; it applies at the next drive.")
+    ford_steering.set_visible(lambda: ui_state.CP is not None and ui_state.CP.brand == "ford")
+    ford_steering.set_enabled(lambda: ui_state.is_offroad())
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM", description="Monitor the driver even when openpilot is not engaged.")
     enable_openpilot = BigParamControl("enable openpilot", "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback,
                                        description="Enable to use openpilot driver assistance.\n" +
@@ -32,6 +39,7 @@ class DrivingLayoutMici(NavScroller):
     self._scroller.add_widgets([
       self._personality_toggle,
       self._initial_cruise_speed,
+      ford_steering,
       ldw_toggle,
       always_on_dm_toggle,
       enable_openpilot,

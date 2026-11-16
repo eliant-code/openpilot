@@ -1,7 +1,8 @@
 """BluePilot Ford lateral, the openpilot side (opendbc/bluepilot_lateral/HOSTS.md).
 
 Upstream openpilot has no settings UI or CarControl extension for the library, so:
-- settings come from bluepilot_settings.json at the repo root, read once at startup;
+- settings come from bluepilot_settings.json at the repo root, read once at startup, except the steering
+  mode, which is the FordSteeringMode param (driving settings on the device);
 - the startup safety bits are ORed into the Ford safetyParam before CarParams is written for pandad;
 - every frame, the model / vehicle-parameter inputs are copied into the Ford CarController's FrameInputs.
 """
@@ -9,10 +10,18 @@ import json
 import os
 
 from openpilot.common.basedir import BASEDIR
+from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 
 SETTINGS_FILE = os.path.join(BASEDIR, "bluepilot_settings.json")
 SERVICES = ['modelV2', 'vehicleParameters', 'lateralDelay']
+
+# FordSteeringMode param index -> (disable_BP_lat_UI, FordPrefLateralControl)
+STEERING_MODES = {
+  0: ("0", "1"),  # angle (BluePilot)
+  1: ("0", "0"),  # curvature (BluePilot)
+  2: ("1", "0"),  # curvature (comma stock): BluePilot lateral off, upstream Ford lateral and safety verbatim
+}
 
 
 def _text(v) -> str:
@@ -29,7 +38,13 @@ def load_settings() -> dict[str, str]:
   except Exception:
     cloudlog.exception("bluepilot: settings file unreadable, using library defaults")
     raw = {}
-  return {k: _text(v) for k, v in raw.items() if not k.startswith("_")}
+  settings = {k: _text(v) for k, v in raw.items() if not k.startswith("_")}
+  try:
+    mode = int(Params().get("FordSteeringMode") or 0)
+  except Exception:
+    mode = 0
+  settings["disable_BP_lat_UI"], settings["FordPrefLateralControl"] = STEERING_MODES.get(mode, STEERING_MODES[0])
+  return settings
 
 
 class BluePilotHost:
