@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.ui.widgets.scroller import NavScroller
-from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigToggle, BigParamControl, BigCircleParamControl, GreyBigButton
+from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigToggle, BigParamControl, BigCircleParamControl, GreyBigButton, BigMultiToggle
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigInputDialog, BigConfirmationCircleButton
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
@@ -13,12 +13,12 @@ class AlphaLongConfirmPage(NavScroller):
   def __init__(self, on_confirm: Callable[[], None]):
     super().__init__()
 
-    accept = BigConfirmationCircleButton("enable speed\ncontrol",
+    accept = BigConfirmationCircleButton("enable\nself-drive",
                                          gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
                                          lambda: self.dismiss(on_confirm))
 
     self._scroller.add_widgets([
-      GreyBigButton("enabling EliPilot speed control", "scroll to continue",
+      GreyBigButton("switching to self-drive", "scroll to continue",
                     gui_app.texture("icons_mici/setup/warning.png", 64, 64)),
       *([
         # Ford: the panda's Ford safety blocks any ACC command that denies stock AEB (CmbbDeny_B_Actl), and the
@@ -33,6 +33,21 @@ class AlphaLongConfirmPage(NavScroller):
       ]),
       accept,
     ])
+
+
+class CruiseModeToggle(BigMultiToggle):
+  """EliPilot: AlphaLongitudinalEnabled as a two-option choice. Same param and confirmation as the upstream toggle."""
+  FORD, SELF_DRIVE = "Ford", "Self-drive"
+
+  def __init__(self, on_change: Callable[[bool], None]):
+    super().__init__("cruise control mode", [self.FORD, self.SELF_DRIVE],
+                     select_callback=lambda value: on_change(value == self.SELF_DRIVE),
+                     description="Ford: the car's own adaptive cruise (incl. intelligent speed-sign mode); EliPilot steers.\n" +
+                                 "Self-drive: EliPilot controls gas and brakes (Autospeed).\n" +
+                                 "Change with the car off; it applies at the next drive.")
+
+  def set_checked(self, checked: bool):  # driven from the param by _update_toggles
+    self.set_value(self.SELF_DRIVE if checked else self.FORD)
 
 
 class DeveloperLayoutMici(NavScroller):
@@ -87,10 +102,8 @@ class DeveloperLayoutMici(NavScroller):
     self._lat_maneuver_toggle = BigToggle("lateral maneuver mode", initial_state=ui_state.params.get_bool("LateralManeuverMode"),
                                           toggle_callback=self._on_lat_maneuver_mode,
                                           description="Run lateral maneuvers for testing steering control.")
-    self._alpha_long_toggle = BigToggle("EliPilot speed control", initial_state=ui_state.params.get_bool("AlphaLongitudinalEnabled"),
-                                        toggle_callback=self._on_alpha_long_enabled,
-                                        description="On: EliPilot controls gas and brakes (Autospeed). Off: the car's own cruise control.\n" +
-                                                    "Change with the car off; it applies at the next drive.")
+    self._alpha_long_toggle = CruiseModeToggle(self._on_alpha_long_enabled)
+    self._alpha_long_toggle.set_checked(ui_state.params.get_bool("AlphaLongitudinalEnabled"))
     self._navigation_toggle = BigParamControl("navigation (alpha)", "NavigationEnabled",
                                               description="Turn-by-turn navigation with a route map. Set a destination from comma connect.")
     self._debug_mode_toggle = BigParamControl("ui debug mode", "ShowDebugInfo",
