@@ -169,7 +169,7 @@ class DeviceLayoutMici(NavScroller):
 
     reset_calibration_btn = EngagedConfirmationButton("reset calibration", "reset", gui_app.texture("icons_mici/settings/device/lkas.png", 122, 64),
                                                       reset_calibration_callback,
-                                                      description="Mount the device within 4° left or right and 5° up or 9° down. openpilot calibrates " +
+                                                      description="Mount the device within 4° left or right and 5° up or 9° down. EliPilot calibrates " +
                                                                   "continuously; resetting is rarely needed. Resetting clears learned calibration.")
 
     reboot_btn = EngagedConfirmationCircleButton("reboot", gui_app.texture("icons_mici/settings/device/reboot.png", 64, 70),
@@ -194,7 +194,7 @@ class DeviceLayoutMici(NavScroller):
     # option order = MaxTimeOffroad index (system/hardware/power_monitoring.py MAX_TIME_OFFROAD_OPTIONS_S)
     stay_on_toggle = BigMultiParamToggle("stay on after car off", "MaxTimeOffroad", ["default", "15 min", "30 min", "60 min"],
                                          description="How long the device stays on after the car is switched off.\n" +
-                                                     "Default is openpilot's 30 hours. It still turns off early if the car battery is low.")
+                                                     "Default is 30 hours, as in openpilot. It still turns off early if the car battery is low.")
 
     regulatory_btn = BigButton("regulatory info", "", gui_app.texture("icons_mici/settings/device/info.png", 64, 64))
     regulatory_btn.set_click_callback(self._on_regulatory)

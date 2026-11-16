@@ -31,9 +31,9 @@ class DrivingLayoutMici(NavScroller):
                                                     "Change with the car off; it applies at the next drive.")
     ford_steering.set_visible(lambda: ui_state.CP is not None and ui_state.CP.brand == "ford")
     ford_steering.set_enabled(lambda: ui_state.is_offroad())
-    always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM", description="Monitor the driver even when openpilot is not engaged.")
-    enable_openpilot = BigParamControl("enable openpilot", "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback,
-                                       description="Enable to use openpilot driver assistance.\n" +
+    always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM", description="Monitor the driver even when EliPilot is not engaged.")
+    enable_openpilot = BigParamControl("enable EliPilot", "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback,
+                                       description="Enable to use EliPilot driver assistance.\n" +
                                                    "Disable to use your car's stock driver assistance.")
 
     self._scroller.add_widgets([

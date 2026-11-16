@@ -1,3 +1,9 @@
+> **EliPilot** is a personal fork of [openpilot](https://github.com/commaai/openpilot) by comma.ai, with
+> [BluePilot](https://github.com/BluePilotDev/bluepilot-lateral)'s Ford lateral control (angle and curvature modes).
+> **It ships a modified Ford safety model**: the panda safety allows signals and ranges that upstream's Ford safety
+> blocks. The full safety test suite, including BluePilot's tests, is kept and must pass (`.github/workflows` in the
+> opendbc fork). EliPilot is not affiliated with or endorsed by comma.ai or Ford Motor Company.
+
 <div align="center" style="text-align: center;">
 
 <h1>openpilot</h1>

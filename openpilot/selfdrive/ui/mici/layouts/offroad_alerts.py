@@ -381,7 +381,7 @@ class MiciOffroadAlerts(NavScroller):
           parts = new_desc.split(" / ")
           if len(parts) > 3:
             version, date = parts[0], parts[3]
-            version_string = f"\nopenpilot {version}, {date}\n"
+            version_string = f"\nEliPilot (openpilot {version}), {date}\n"
 
         update_alert_data.text = f"Update available {version_string}. Click to update. Read the release notes at blog.comma.ai."
         update_alert_data.visible = True

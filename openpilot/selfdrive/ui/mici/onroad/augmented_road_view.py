@@ -179,7 +179,7 @@ class AugmentedRoadView(CameraView):
     self._alert_renderer = AlertRenderer()
     self._driver_state_renderer = DriverStateRenderer(background=False)
     self._confidence_ball = ConfidenceBall()
-    self._offroad_label = UnifiedLabel("start the car to\nuse openpilot", 54, FontWeight.DISPLAY,
+    self._offroad_label = UnifiedLabel("start the car to\nuse EliPilot", 54, FontWeight.DISPLAY,
                                        text_color=rl.Color(255, 255, 255, int(255 * 0.9)),
                                        alignment=TextAlignment.CENTER,
                                        alignment_vertical=TextAlignmentVertical.MIDDLE)
@@ -202,11 +202,11 @@ class AugmentedRoadView(CameraView):
       self._offroad_label.set_font_size(54)
       self._offroad_sublabel.set_text("")
     elif ui_state.ignition and not ui_state.started:
-      self._offroad_label.set_text("openpilot can't start")
+      self._offroad_label.set_text("EliPilot can't start")
       self._offroad_label.set_font_size(46)
       self._offroad_sublabel.set_text("check alerts")
     else:
-      self._offroad_label.set_text("start the car to\nuse openpilot")
+      self._offroad_label.set_text("start the car to\nuse EliPilot")
       self._offroad_label.set_font_size(54)
       self._offroad_sublabel.set_text("")
 

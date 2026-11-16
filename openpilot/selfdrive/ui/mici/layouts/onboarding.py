@@ -61,7 +61,7 @@ class TrainingGuidePreDMTutorial(NavScroller):
       GreyBigButton("driver monitoring\ncheck", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
       GreyBigButton("", "Next, we'll check if comma four can detect the driver properly."),
-      GreyBigButton("", "openpilot uses the cabin camera to check if the driver is distracted."),
+      GreyBigButton("", "EliPilot uses the cabin camera to check if the driver is distracted."),
       GreyBigButton("", "If it does not have a clear view of the driver, unplug and remount before continuing."),
       continue_button,
     ])
@@ -247,9 +247,9 @@ class TrainingGuideAttentionNotice(Scroller):
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("what is openpilot?", "scroll to continue",
+      GreyBigButton("what is EliPilot?", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
-      GreyBigButton("", "1. openpilot is a driver assistance system."),
+      GreyBigButton("", "1. EliPilot is a driver assistance system."),
       GreyBigButton("", "2. You must pay attention at all times."),
       GreyBigButton("", "3. You must be ready to take over at any time."),
       GreyBigButton("", "4. You are fully responsible for driving the car."),
