@@ -9,7 +9,7 @@ from openpilot.common.time_helpers import system_time_valid
 from openpilot.selfdrive.ui.mici.layouts.settings.device.prime import PrimeScroller
 from openpilot.system.ui.widgets.scroller import NavRawScrollPanel, NavScroller
 from openpilot.selfdrive.ui.mici.widgets.info import InfoLayoutMici
-from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigCircleButton, BigToggle, BigParamControl
+from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigCircleButton, BigToggle, BigParamControl, BigMultiParamToggle
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigConfirmationDialog
 from openpilot.selfdrive.ui.mici.onroad.cabin_camera_dialog import CabinCameraDialog
 from openpilot.selfdrive.ui.mici.layouts.onboarding import TrainingGuide, TermsPage
@@ -191,6 +191,11 @@ class DeviceLayoutMici(NavScroller):
     record_mic.set_enabled(lambda: not ui_state.engaged)
     self._param_toggles = (("RecordFront", record_front), ("RecordAudio", record_mic))
 
+    # option order = MaxTimeOffroad index (system/hardware/power_monitoring.py MAX_TIME_OFFROAD_OPTIONS_S)
+    stay_on_toggle = BigMultiParamToggle("stay on after car off", "MaxTimeOffroad", ["default", "15 min", "30 min", "60 min"],
+                                         description="How long the device stays on after the car is switched off.\n" +
+                                                     "Default is openpilot's 30 hours. It still turns off early if the car battery is low.")
+
     regulatory_btn = BigButton("regulatory info", "", gui_app.texture("icons_mici/settings/device/info.png", 64, 64))
     regulatory_btn.set_click_callback(self._on_regulatory)
 
@@ -212,6 +217,7 @@ class DeviceLayoutMici(NavScroller):
       self._metric_toggle,
       record_front,
       record_mic,
+      stay_on_toggle,
       review_training_guide_btn,
       cabin_cam_btn,
       terms_btn,

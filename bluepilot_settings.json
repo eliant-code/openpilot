@@ -22,8 +22,5 @@
   "custom_path_offset_curv": 0.0,
   "LC_PID_gain_UI_curv": 1.0,
 
-  "FordPrefSteerAngleCurvature": false,
-
-  "_max_time_offroad_minutes": "How long the device stays on after the car is switched off. 0 = openpilot default (30 hours). Minimum in practice is 5 minutes.",
-  "max_time_offroad_minutes": 15
+  "FordPrefSteerAngleCurvature": false
 }

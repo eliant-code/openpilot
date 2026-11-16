@@ -87,6 +87,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"LateralManeuverMode", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
     {"LongitudinalManeuverMode", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
     {"LongitudinalPersonality", {PERSISTENT, INT, std::to_string(static_cast<int>(cereal::LongitudinalPersonality::STANDARD))}},
+    {"MaxTimeOffroad", {PERSISTENT, INT, "1"}},  // stay on after ignition off: 0 default (30 h), 1 15 min, 2 30 min, 3 60 min
     {"NavigationEnabled", {PERSISTENT, BOOL, "0"}},
     {"NavDestination", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, JSON}},
     {"NetworkMetered", {PERSISTENT, BOOL}},
