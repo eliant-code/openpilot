@@ -244,6 +244,28 @@ class TargetBranchButton(BigButton):
     self._check_update_btn.check_for_update()
 
 
+class UpdateErrorButton(BigButton):
+  """EliPilot: shows the updater's last error (LastUpdateException), which upstream only surfaces after 16 failures."""
+  def __init__(self):
+    super().__init__("update error", "tap to view",
+                     description="The reason the last update attempt failed. Cleared on reboot.")
+    self._error = ""
+    self._checked_t = -1e9
+    self.set_click_callback(self._on_click)
+    self.set_visible(lambda: bool(self._error))
+
+  def _update_state(self):
+    super()._update_state()
+    now = rl.get_time()
+    if now - self._checked_t > 1.0:  # params read, not every frame
+      self._checked_t = now
+      self._error = (ui_state.params.get("LastUpdateException") or "").strip()
+
+  def _on_click(self):
+    lines = [line.strip() for line in self._error.splitlines() if line.strip()]
+    gui_app.push_widget(BigDialog("", "\n".join(lines[-6:])[-600:]))
+
+
 class SoftwareLayoutMici(NavScroller):
   def __init__(self):
     super().__init__()
@@ -262,6 +284,7 @@ class SoftwareLayoutMici(NavScroller):
       SoftwareInfoLayoutMici(),
       check_update_btn,
       InstallUpdateButton(),
+      UpdateErrorButton(),
       TargetBranchButton(check_update_btn),
       uninstall_openpilot_btn,
     ])
