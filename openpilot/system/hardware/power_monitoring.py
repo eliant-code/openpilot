@@ -1,9 +1,12 @@
+import json
+import os
 import time
 import threading
 
 from openpilot.common.params import Params
 from openpilot.common.hardware import HARDWARE
 from openpilot.common.swaglog import cloudlog
+from openpilot.common.basedir import BASEDIR
 
 CAR_VOLTAGE_LOW_PASS_K = 0.011 # LPF gain for 45s tau (dt/tau / (dt/tau + 1))
 
@@ -17,6 +20,20 @@ MIN_ON_TIME_S = 3600
 DELAY_SHUTDOWN_TIME_S = 300 # Wait at least DELAY_SHUTDOWN_TIME_S seconds after offroad_time to shutdown.
 VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S = 60
 
+
+def max_time_offroad_s() -> float:
+  """BluePilot-style shutdown timer: "max_time_offroad_minutes" in bluepilot_settings.json.
+  Missing, unreadable or 0 keeps upstream's MAX_TIME_OFFROAD_S. The other shutdown rules (low voltage,
+  battery estimate, DELAY_SHUTDOWN_TIME_S minimum) still apply."""
+  try:
+    with open(os.path.join(BASEDIR, "bluepilot_settings.json")) as f:
+      minutes = float(json.load(f).get("max_time_offroad_minutes", 0))
+  except Exception:
+    cloudlog.exception("power_monitoring: bluepilot_settings.json unreadable, using default offroad time")
+    return MAX_TIME_OFFROAD_S
+  return minutes * 60 if minutes > 0 else MAX_TIME_OFFROAD_S
+
+
 class PowerMonitoring:
   def __init__(self):
     self.params = Params()
@@ -27,6 +44,7 @@ class PowerMonitoring:
     self.car_voltage_mV = 12e3                  # Low-passed version of peripheralState voltage
     self.car_voltage_instant_mV = 12e3          # Last value of peripheralState voltage
     self.integration_lock = threading.Lock()
+    self.max_time_offroad_s = max_time_offroad_s()
 
     car_battery_capacity_uWh = self.params.get("CarBatteryCapacity") or 0
 
@@ -112,7 +130,7 @@ class PowerMonitoring:
     offroad_time = (now - offroad_timestamp)
     low_voltage_shutdown = (self.car_voltage_mV < (VBATT_PAUSE_CHARGING * 1e3) and
                             offroad_time > VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S)
-    should_shutdown |= offroad_time > MAX_TIME_OFFROAD_S
+    should_shutdown |= offroad_time > self.max_time_offroad_s
     should_shutdown |= low_voltage_shutdown
     should_shutdown |= (self.car_battery_capacity_uWh <= 0)
     should_shutdown &= not ignition
