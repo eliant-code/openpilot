@@ -13,16 +13,24 @@ class AlphaLongConfirmPage(NavScroller):
   def __init__(self, on_confirm: Callable[[], None]):
     super().__init__()
 
-    accept = BigConfirmationCircleButton("enable alpha\nlongitudinal",
+    accept = BigConfirmationCircleButton("enable speed\ncontrol",
                                          gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
                                          lambda: self.dismiss(on_confirm))
 
     self._scroller.add_widgets([
-      GreyBigButton("enabling alpha longitudinal", "scroll to continue",
+      GreyBigButton("enabling EliPilot speed control", "scroll to continue",
                     gui_app.texture("icons_mici/setup/warning.png", 64, 64)),
-      GreyBigButton("", "WARNING: alpha longitudinal control may disable Automatic Emergency Braking (AEB)"),
-      GreyBigButton("", "On this car, EliPilot defaults to the stock system's built-in ACC."),
-      GreyBigButton("", "Enabling this will switch to EliPilot longitudinal control."),
+      *([
+        # Ford: the panda's Ford safety blocks any ACC command that denies stock AEB (CmbbDeny_B_Actl), and the
+        # camera's AEB request (ACCDATA_2) is not intercepted
+        GreyBigButton("", "EliPilot will control gas and brakes, choosing the speed with Autospeed, up to your set speed."),
+        GreyBigButton("", "Ford's automatic emergency braking stays enabled: commands that would disable it are blocked."),
+        GreyBigButton("", "Turn this off to use Ford's own cruise control, including intelligent speed-sign mode."),
+      ] if ui_state.CP is not None and ui_state.CP.brand == "ford" else [
+        GreyBigButton("", "WARNING: alpha longitudinal control may disable Automatic Emergency Braking (AEB)"),
+        GreyBigButton("", "On this car, EliPilot defaults to the stock system's built-in ACC."),
+        GreyBigButton("", "Enabling this will switch to EliPilot longitudinal control."),
+      ]),
       accept,
     ])
 
@@ -79,10 +87,10 @@ class DeveloperLayoutMici(NavScroller):
     self._lat_maneuver_toggle = BigToggle("lateral maneuver mode", initial_state=ui_state.params.get_bool("LateralManeuverMode"),
                                           toggle_callback=self._on_lat_maneuver_mode,
                                           description="Run lateral maneuvers for testing steering control.")
-    self._alpha_long_toggle = BigToggle("alpha longitudinal", initial_state=ui_state.params.get_bool("AlphaLongitudinalEnabled"),
+    self._alpha_long_toggle = BigToggle("EliPilot speed control", initial_state=ui_state.params.get_bool("AlphaLongitudinalEnabled"),
                                         toggle_callback=self._on_alpha_long_enabled,
-                                        description="Use alpha EliPilot longitudinal control instead of stock ACC. This may disable Automatic Emergency " +
-                                                    "Braking (AEB).")
+                                        description="On: EliPilot controls gas and brakes (Autospeed). Off: the car's own cruise control.\n" +
+                                                    "Change with the car off; it applies at the next drive.")
     self._navigation_toggle = BigParamControl("navigation (alpha)", "NavigationEnabled",
                                               description="Turn-by-turn navigation with a route map. Set a destination from comma connect.")
     self._debug_mode_toggle = BigParamControl("ui debug mode", "ShowDebugInfo",
