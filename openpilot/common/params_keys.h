@@ -88,6 +88,8 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"LongitudinalManeuverMode", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
     {"LongitudinalPersonality", {PERSISTENT, INT, std::to_string(static_cast<int>(cereal::LongitudinalPersonality::STANDARD))}},
     {"FordSteeringMode", {PERSISTENT, INT, "0"}},  // Ford steering: 0 angle (BluePilot), 1 curvature (BluePilot), 2 curvature (comma stock)
+    {"FordFollowSpeedSigns", {PERSISTENT, BOOL, "1"}},  // Self-drive: cruise set speed follows speed signs (Ford iACC request)
+    {"FordSpeedSignTolerance", {PERSISTENT, INT}},  // km/h over the sign, learned from the Ford camera (set in the car's menu)
     {"MaxTimeOffroad", {PERSISTENT, INT, "1"}},  // stay on after ignition off: 0 default (30 h), 1 15 min, 2 30 min, 3 60 min
     {"NavigationEnabled", {PERSISTENT, BOOL, "0"}},
     {"NavDestination", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, JSON}},

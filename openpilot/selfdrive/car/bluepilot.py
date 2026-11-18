@@ -55,6 +55,19 @@ class BluePilotHost:
 
     self.CI = CI
     self.settings = load_settings()
+    # Ford iACC set-speed request in Self-drive (opendbc/car/ford/intelligent_speed.py): the on/off setting, and the
+    # driver's tolerance learned from the camera, saved across drives so a drive that starts in a car park has it
+    self.ford_iacc = CI.CP.brand == 'ford' and hasattr(CI.CS, 'speed_sign_follow')
+    self.tolerance_saved = None
+    if self.ford_iacc:
+      try:
+        params = Params()
+        CI.CS.speed_sign_follow = params.get_bool("FordFollowSpeedSigns")
+        self.tolerance_saved = params.get("FordSpeedSignTolerance")
+        CI.CS.speed_sign_tolerance_kph = self.tolerance_saved
+      except Exception:
+        cloudlog.exception("bluepilot: Ford speed-sign params unreadable")
+
     self.active = CI.CP.brand == 'ford' and CI.CC is not None and lateral_inputs_required(CI.CP)
     if not self.active:
       return
@@ -70,6 +83,12 @@ class BluePilotHost:
 
   def update(self, sm) -> None:
     """Copy this frame's model / vehicle-parameter inputs (HOSTS.md, 'Every frame: inputs')."""
+    if self.ford_iacc:
+      tolerance = self.CI.CS.speed_sign_tolerance_kph
+      if tolerance is not None and tolerance != self.tolerance_saved:
+        self.tolerance_saved = tolerance
+        Params().put("FordSpeedSignTolerance", int(tolerance))  # rare: when the learned tolerance changes
+        cloudlog.warning(f"ford: speed sign tolerance learned from the camera: {tolerance} km/h")
     if not self.active:
       return
     li = self.frame_inputs.lateralInputs

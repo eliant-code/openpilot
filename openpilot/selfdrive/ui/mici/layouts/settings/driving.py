@@ -31,6 +31,14 @@ class DrivingLayoutMici(NavScroller):
                                                     "Change with the car off; it applies at the next drive.")
     ford_steering.set_visible(lambda: ui_state.CP is not None and ui_state.CP.brand == "ford")
     ford_steering.set_enabled(lambda: ui_state.is_offroad())
+    # FordFollowSpeedSigns: read at car start (selfdrive/car/bluepilot.py)
+    ford_speed_signs = BigParamControl("follow speed signs", "FordFollowSpeedSigns",
+                                       description="Self-drive cruise only. Your cruise set speed follows the speed signs, " +
+                                                   "like Ford's intelligent cruise, with the tolerance set in your car's menu. " +
+                                                   "Cruise buttons override until the next sign.\n" +
+                                                   "Change with the car off; it applies at the next drive.")
+    ford_speed_signs.set_visible(lambda: ui_state.CP is not None and ui_state.CP.brand == "ford")
+    ford_speed_signs.set_enabled(lambda: ui_state.is_offroad())
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM", description="Monitor the driver even when EliPilot is not engaged.")
     enable_openpilot = BigParamControl("enable EliPilot", "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback,
                                        description="Enable to use EliPilot driver assistance.\n" +
@@ -40,6 +48,7 @@ class DrivingLayoutMici(NavScroller):
       self._personality_toggle,
       self._initial_cruise_speed,
       ford_steering,
+      ford_speed_signs,
       ldw_toggle,
       always_on_dm_toggle,
       enable_openpilot,
