@@ -32,7 +32,7 @@ class DrivingLayoutMici(NavScroller):
     ford_steering.set_visible(lambda: ui_state.CP is not None and ui_state.CP.brand == "ford")
     ford_steering.set_enabled(lambda: ui_state.is_offroad())
     # FordFollowSpeedSigns: read at car start (selfdrive/car/bluepilot.py)
-    ford_speed_signs = BigParamControl("follow speed signs", "FordFollowSpeedSigns",
+    self._ford_speed_signs = ford_speed_signs = BigParamControl("follow speed signs", "FordFollowSpeedSigns",
                                        description="Self-drive cruise only. Your cruise set speed follows the speed signs, " +
                                                    "like Ford's intelligent cruise, with the tolerance set in your car's menu. " +
                                                    "Cruise buttons override until the next sign.\n" +
@@ -93,3 +93,8 @@ class DrivingLayoutMici(NavScroller):
     # Refresh toggles from params to mirror external changes
     for key, item in self._refresh_toggles:
       item.set_checked(ui_state.params.get_bool(key))
+
+    # Ford: the speed-sign tolerance learned from the car's camera (FordSpeedSignTolerance, saved by selfdrive/car/bluepilot.py)
+    self._ford_speed_signs.set_checked(ui_state.params.get_bool("FordFollowSpeedSigns"))
+    tolerance = ui_state.params.get("FordSpeedSignTolerance")
+    self._ford_speed_signs.set_value(f"tolerance {tolerance:+d} km/h" if tolerance is not None else "tolerance unknown")
